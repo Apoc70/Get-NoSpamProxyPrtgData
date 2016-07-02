@@ -1,102 +1,137 @@
+<# 
+    .SYNOPSIS 
+    PRTG Sensor script to monitor a NoSpamProxy einvironment
+
+    Thomas Stensitzki 
+
+    THIS CODE IS MADE AVAILABLE AS IS, WITHOUT WARRANTY OF ANY KIND. THE ENTIRE  
+    RISK OF THE USE OR THE RESULTS FROM THE USE OF THIS CODE REMAINS WITH THE USER. 
+
+    Version 1.0, 2016-07-02
+
+    Please send ideas, comments and suggestions to support@granikos.eu 
+
+    .LINK 
+    More information can be found at http://www.granikos.eu/en/scripts
+
+    .DESCRIPTION 
+    This script returns Xml for a custom PRTG sensor providing the following channels
+
+    .NOTES 
+    Requirements 
+    - Windows Server 2012 R2  
+    - NoSpamProxy PowerShell module
+    
+    Revision History 
+    -------------------------------------------------------------------------------- 
+    1.0 Initial community release 
+    
+    .EXAMPLE 
+    .\Get-NoSpamProxyPrtgData.ps1
+
+#> 
+
+
+
 # copied from prtgshell.psm1
 
 ###############################################################################
 # custom exe/Xml functions
 
 function Set-PrtgResult {
-    Param (
-    [Parameter(mandatory=$True,Position=0)]
-    [string]$Channel,
+  Param (
+  [Parameter(mandatory=$True,Position=0)]
+  [string]$Channel,
     
-    [Parameter(mandatory=$True,Position=1)]
-    $Value,
+  [Parameter(mandatory=$True,Position=1)]
+  $Value,
     
-    [Parameter(mandatory=$True,Position=2)]
-    [string]$Unit,
+  [Parameter(mandatory=$True,Position=2)]
+  [string]$Unit,
 
-    [Parameter(mandatory=$False)]
-    [alias('mw')]
-    [string]$MaxWarn,
+  [Parameter(mandatory=$False)]
+  [alias('mw')]
+  [string]$MaxWarn,
 
-    [Parameter(mandatory=$False)]
-    [alias('minw')]
-    [string]$MinWarn,
+  [Parameter(mandatory=$False)]
+  [alias('minw')]
+  [string]$MinWarn,
     
-    [Parameter(mandatory=$False)]
-    [alias('me')]
-    [string]$MaxError,
+  [Parameter(mandatory=$False)]
+  [alias('me')]
+  [string]$MaxError,
     
-    [Parameter(mandatory=$False)]
-    [alias('wm')]
-    [string]$WarnMsg,
+  [Parameter(mandatory=$False)]
+  [alias('wm')]
+  [string]$WarnMsg,
     
-    [Parameter(mandatory=$False)]
-    [alias('em')]
-    [string]$ErrorMsg,
+  [Parameter(mandatory=$False)]
+  [alias('em')]
+  [string]$ErrorMsg,
     
-    [Parameter(mandatory=$False)]
-    [alias('mo')]
-    [string]$Mode,
+  [Parameter(mandatory=$False)]
+  [alias('mo')]
+  [string]$Mode,
     
-    [Parameter(mandatory=$False)]
-    [alias('sc')]
-    [switch]$ShowChart,
+  [Parameter(mandatory=$False)]
+  [alias('sc')]
+  [switch]$ShowChart,
     
-    [Parameter(mandatory=$False)]
-    [alias('ss')]
-    [ValidateSet("One","Kilo","Mega","Giga","Tera","Byte","KiloByte","MegaByte","GigaByte","TeraByte","Bit","KiloBit","MegaBit","GigaBit","TeraBit")]
-    [string]$SpeedSize,
+  [Parameter(mandatory=$False)]
+  [alias('ss')]
+  [ValidateSet('One','Kilo','Mega','Giga','Tera','Byte','KiloByte','MegaByte','GigaByte','TeraByte','Bit','KiloBit','MegaBit','GigaBit','TeraBit')]
+  [string]$SpeedSize,
 
-	[Parameter(mandatory=$False)]
-    [ValidateSet("One","Kilo","Mega","Giga","Tera","Byte","KiloByte","MegaByte","GigaByte","TeraByte","Bit","KiloBit","MegaBit","GigaBit","TeraBit")]
-    [string]$VolumeSize,
+  [Parameter(mandatory=$False)]
+  [ValidateSet('One','Kilo','Mega','Giga','Tera','Byte','KiloByte','MegaByte','GigaByte','TeraByte','Bit','KiloBit','MegaBit','GigaBit','TeraBit')]
+  [string]$VolumeSize,
     
-    [Parameter(mandatory=$False)]
-    [alias('dm')]
-    [ValidateSet("Auto","All")]
-    [string]$DecimalMode,
+  [Parameter(mandatory=$False)]
+  [alias('dm')]
+  [ValidateSet('Auto','All')]
+  [string]$DecimalMode,
     
-    [Parameter(mandatory=$False)]
-    [alias('w')]
-    [switch]$Warning,
+  [Parameter(mandatory=$False)]
+  [alias('w')]
+  [switch]$Warning,
     
-    [Parameter(mandatory=$False)]
-    [string]$ValueLookup
-    )
+  [Parameter(mandatory=$False)]
+  [string]$ValueLookup
+  )
     
-    $StandardUnits = @("BytesBandwidth","BytesMemory","BytesDisk","Temperature","Percent","TimeResponse","TimeSeconds","Custom","Count","CPU","BytesFile","SpeedDisk","SpeedNet","TimeHours")
-    $LimitMode = $false
+  $StandardUnits = @('BytesBandwidth','BytesMemory','BytesDisk','Temperature','Percent','TimeResponse','TimeSeconds','Custom','Count','CPU','BytesFile','SpeedDisk','SpeedNet','TimeHours')
+  $LimitMode = $false
     
-    $Result  = "  <result>`n"
-    $Result += "    <channel>$Channel</channel>`n"
-    $Result += "    <value>$Value</value>`n"
+  $Result  = "  <result>`n"
+  $Result += "    <channel>$Channel</channel>`n"
+  $Result += "    <value>$Value</value>`n"
     
-    if ($StandardUnits -contains $Unit) {
-        $Result += "    <unit>$Unit</unit>`n"
-    } elseif ($Unit) {
-        $Result += "    <unit>custom</unit>`n"
-        $Result += "    <customunit>$Unit</customunit>`n"
-    }
+  if ($StandardUnits -contains $Unit) {
+      $Result += "    <unit>$Unit</unit>`n"
+  } elseif ($Unit) {
+      $Result += "    <unit>custom</unit>`n"
+      $Result += "    <customunit>$Unit</customunit>`n"
+  }
     
-	if (!($Value -is [int])) { $Result += "    <float>1</float>`n" }
-    if ($Mode)        { $Result += "    <mode>$Mode</mode>`n" }
-    if ($MaxWarn)     { $Result += "    <limitmaxwarning>$MaxWarn</limitmaxwarning>`n"; $LimitMode = $true }
-    if ($MaxError)    { $Result += "    <limitminwarning>$MinWarn</limitminwarning>`n"; $LimitMode = $true }
-    if ($MaxError)    { $Result += "    <limitmaxerror>$MaxError</limitmaxerror>`n"; $LimitMode = $true }
-    if ($WarnMsg)     { $Result += "    <limitwarningmsg>$WarnMsg</limitwarningmsg>`n"; $LimitMode = $true }
-    if ($ErrorMsg)    { $Result += "    <limiterrormsg>$ErrorMsg</limiterrormsg>`n"; $LimitMode = $true }
-    if ($LimitMode)   { $Result += "    <limitmode>1</limitmode>`n" }
-    if ($SpeedSize)   { $Result += "    <speedsize>$SpeedSize</speedsize>`n" }
-    if ($VolumeSize)  { $Result += "    <volumesize>$VolumeSize</volumesize>`n" }
-    if ($DecimalMode) { $Result += "    <decimalmode>$DecimalMode</decimalmode>`n" }
-    if ($Warning)     { $Result += "    <warning>1</warning>`n" }
-    if ($ValueLookup) { $Result += "    <ValueLookup>$ValueLookup</ValueLookup>`n" }
+  if (!($Value -is [int])) { $Result += "    <float>1</float>`n" }
+  if ($Mode)        { $Result += "    <mode>$Mode</mode>`n" }
+  if ($MaxWarn)     { $Result += "    <limitmaxwarning>$MaxWarn</limitmaxwarning>`n"; $LimitMode = $true }
+  if ($MaxError)    { $Result += "    <limitminwarning>$MinWarn</limitminwarning>`n"; $LimitMode = $true }
+  if ($MaxError)    { $Result += "    <limitmaxerror>$MaxError</limitmaxerror>`n"; $LimitMode = $true }
+  if ($WarnMsg)     { $Result += "    <limitwarningmsg>$WarnMsg</limitwarningmsg>`n"; $LimitMode = $true }
+  if ($ErrorMsg)    { $Result += "    <limiterrormsg>$ErrorMsg</limiterrormsg>`n"; $LimitMode = $true }
+  if ($LimitMode)   { $Result += "    <limitmode>1</limitmode>`n" }
+  if ($SpeedSize)   { $Result += "    <speedsize>$SpeedSize</speedsize>`n" }
+  if ($VolumeSize)  { $Result += "    <volumesize>$VolumeSize</volumesize>`n" }
+  if ($DecimalMode) { $Result += "    <decimalmode>$DecimalMode</decimalmode>`n" }
+  if ($Warning)     { $Result += "    <warning>1</warning>`n" }
+  if ($ValueLookup) { $Result += "    <ValueLookup>$ValueLookup</ValueLookup>`n" }
     
-    if (!($ShowChart)) { $Result += "    <showchart>0</showchart>`n" }
+  if (!($ShowChart)) { $Result += "    <showchart>0</showchart>`n" }
     
-    $Result += "  </result>`n"
+  $Result += "  </result>`n"
     
-    return $Result
+  return $Result
 }
 
 function Set-PrtgError {
@@ -142,12 +177,12 @@ if(Get-Module NoSpamProxy) {
     $XmlOutput += Set-PrtgResult -Channel 'Outbound Success' -Value $outboundSuccess -Unit Count -ShowChart
     $XmlOutput += Set-PrtgResult -Channel 'Inbound PermanentlyBlocked' -Value $inboundPermBlocked -Unit Count -ShowChart
     if($deliveryPendingMaxWarn -ne 0) {
-        $XmlOutput += Set-PrtgResult -Channel 'Inbound DeliveryPending' -Value $outboundPending -Unit Count -ShowChart -MaxWarn $deliveryPendingMaxWarn
+        $XmlOutput += Set-PrtgResult -Channel 'Outbound DeliveryPending' -Value $outboundPending -Unit Count -ShowChart -MaxWarn $deliveryPendingMaxWarn
     }
     else {
-        $XmlOutput += Set-PrtgResult -Channel 'Inbound DeliveryPending' -Value $outboundPending -Unit Count -ShowChart 
+        $XmlOutput += Set-PrtgResult -Channel 'Outbound DeliveryPending' -Value $outboundPending -Unit Count -ShowChart 
     }
-    $XmlOutput += "</prtg>"
+    $XmlOutput += '</prtg>'
 
     # Return Xml
     $XmlOutput
