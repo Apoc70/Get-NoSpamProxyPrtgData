@@ -1,30 +1,30 @@
 # Get-NoSpamProxyPrtgData.ps1 
 PRTG Sensor script to monitor a NoSpamProxy einvironment
 
-##Description
+## Description
 This script returns Xml for a custom PRTG sensor providing the following channels
 
-##Inputs
+## Inputs
 None 
 
-##Outputs
+## Outputs
 PRTG custom sensor Xml 
 
-##Examples
+## Examples
 ```
 .\Get-NoSpamProxyPrtgData.ps1 
 ```
 
 
-##TechNet Gallery
+## TechNet Gallery
 Find the script at TechNet Gallery
-* 
+* https://gallery.technet.microsoft.com/scriptcenter/Custom-PRTG-Sensor-to-aba09d71
 
 
-##Credits
+## Credits
 Written by: Thomas Stensitzki
 
-Stay connected:
+## Social
 
 * My Blog: http://justcantgetenough.granikos.eu
 * Archived Blog: http://www.sf-tools.net/
@@ -37,6 +37,3 @@ For more Office 365, Cloud Security and Exchange Server stuff checkout services 
 * Blog:     http://blog.granikos.eu/
 * Website:	https://www.granikos.eu/en/
 * Twitter:	https://twitter.com/granikos_de
-
-Additional Credits:
-* 

@@ -1,6 +1,6 @@
-<# 
+﻿<# 
     .SYNOPSIS 
-    PRTG Sensor script to monitor a NoSpamProxy einvironment
+    PRTG Sensor script to monitor a NoSpamProxy environment
 
     Thomas Stensitzki 
 
@@ -17,6 +17,13 @@
     .DESCRIPTION 
     This script returns Xml for a custom PRTG sensor providing the following channels
 
+    - In/Out Success             | Total of inbound/outbound successfully delivered messages over the last X minutes
+    - Inbound Success            | Number of inbound successfully delivered messages over the last X minutes
+    - Outbound Success           | Number of outbound successfully delivered messages over the last X minutes
+    - Inbound PermanentlyBlocked | Number of inbound blocked messages over the last X minutes
+    - Outbound DeliveryPending   | Number of outbound messages with pending delivery over the last X minutes
+
+
     .NOTES 
     Requirements 
     - Windows Server 2012 R2  
@@ -31,12 +38,12 @@
 
 #> 
 
-
-
 # copied from prtgshell.psm1
-
+# avoid installing the full PRTG PowerShell module, as PRTg management is not required
+# Learn more about the PRTG PowerShell following the GitHub link below
 ###############################################################################
 # custom exe/Xml functions
+# Copyright (c) Brian Addicks, https://github.com/brianaddicks/prtgshell
 
 function Set-PrtgResult {
   Param (
@@ -150,14 +157,19 @@ function Set-PrtgError {
 exit
 }
 
+## MAIN #####################################################################
 # Load Module
 If ( ! (Get-module NoSpamProxy )) {
     Import-Module NoSpamProxy
 }
 
+# Default timespan last 5 minutes
 $minutes = 5
+# Default warning level for delivery pending messages
+# Adjust to your environment as needed
 $deliveryPendingMaxWarn = 10
 
+# execute only, if NoSpamProxy module has been loaded
 if(Get-Module NoSpamProxy) {
     $timespan = New-TimeSpan -Minutes $minutes
 
@@ -171,7 +183,8 @@ if(Get-Module NoSpamProxy) {
     $outboundPending = (Get-NspMessageTrack -Status DeliveryPending -Age $timespan -Directions FromLocal).Count
 
     # Generate PRTG Output
-    $XmlOutput = "<prtg>`n"
+    $XmlOutput = "<?xml version=""1.0"" encoding=""Windows-1252"" ?>`n"
+    $XmlOutput += "<prtg>`n"
     $XmlOutput += Set-PrtgResult -Channel 'In/Out Success' -Value $($inboundSuccess + $outboundSuccess) -Unit Count -ShowChart
     $XmlOutput += Set-PrtgResult -Channel 'Inbound Success' -Value $inboundSuccess -Unit Count -ShowChart
     $XmlOutput += Set-PrtgResult -Channel 'Outbound Success' -Value $outboundSuccess -Unit Count -ShowChart
@@ -188,5 +201,5 @@ if(Get-Module NoSpamProxy) {
     $XmlOutput
 }
 else {
-    Set-PrtgError -PrtgErrorText 'NoSpamProxy Module failed'
+    Set-PrtgError -PrtgErrorText 'NoSpamProxy Module failed to load'
 }
