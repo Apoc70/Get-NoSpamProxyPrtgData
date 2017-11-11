@@ -4,7 +4,7 @@
 
     Thomas Stensitzki 
 
-    THIS CODE IS MADE AVAILABLE AS IS, WITHOUT WARRANTY OF ANY KIND. THE ENTIRE  
+    THIS CODE IS MADE AVAILABLE AS IS, WITHOUT WARRANTY OF ANY KIND. THE ENTIRE
     RISK OF THE USE OR THE RESULTS FROM THE USE OF THIS CODE REMAINS WITH THE USER. 
 
     Version 1.0, 2016-07-02
@@ -12,7 +12,7 @@
     Please send ideas, comments and suggestions to support@granikos.eu 
 
     .LINK 
-    More information can be found at http://www.granikos.eu/en/scripts
+    http://www.granikos.eu/en/scripts
 
     .DESCRIPTION 
     This script returns Xml for a custom PRTG sensor providing the following channels
